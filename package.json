@@ -1,0 +1,23 @@
+{
+  "name": "flashflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CoreyHarms164/FlashFlow.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CoreyHarms164/FlashFlow/issues"
+  },
+  "homepage": "https://github.com/CoreyHarms164/FlashFlow#readme",
+  "dependencies": {
+    "Netflow": "https://github.com/Sghazzawi/Node-Netflowd/tarball/master",
+    "lodash": "^4.17.15"
+  }
+}
