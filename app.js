@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var Collector = require('Netflow');
 var port = 2055;
 var monitorIP = [10, 2, 1, 150];
@@ -7,6 +8,7 @@ var x = new Collector(function(err){
     }
 }).on("listening", function(){
     console.log(`Listening on port ${port}`);
+    console.log(arrToIP([10, 1, 2, 3]));
 }).on("packet", function(packet){
     Object.keys(packet.v5Flows).forEach(function(p){
 
@@ -23,6 +25,12 @@ var x = new Collector(function(err){
     console.log("End"); */
 }).listen(port);
 
+function arrToIP(arr){
+    if(arr.length != 4) return;
+
+    return `${arr[0]}.${arr[1]}.${arr[2]}.${arr[3]}`;
+    
+}
 
 function validate(flow, target){
     var src = flow.srcaddr;
