@@ -1,50 +1,81 @@
 var _ = require('lodash');
 var Collector = require('Netflow');
-var port = 2055;
-var monitorIP = [10, 2, 1, 150];
+config = require('./config');
+
+var packetCount = 0;
+var packetThreshold = 800; //number of packets before writing to DB
+
+//need to use 2 collectors so no flows are missed during DB Write
+var flowCollector1 = []; // {ip, upBytes, downBytes}
+var flowCollector2 = []; // {ip, upBytes, downBytes}
+var useFlow1 = true;
+
+
 var x = new Collector(function(err){
     if(err!=null){
         console.log(err);
     }
 }).on("listening", function(){
-    console.log(`Listening on port ${port}`);
-    console.log(arrToIP([10, 1, 2, 3]));
+    console.log(`Listening on port ${config.port}`);
 }).on("packet", function(packet){
-    Object.keys(packet.v5Flows).forEach(function(p){
+    packetCount ++;
 
-        if(validate(packet.v5Flows[p], monitorIP)){
-            console.log(`Src Address: ${packet.v5Flows[p].srcaddr}`);
-            console.log(`Dst Address: ${packet.v5Flows[p].dstaddr}`);
-        }
+    _.forEach(packet.v5Flows, function(f){
+        let ip, upBytes = 0, downBytes = 0;
         
+        if(config.localIP(f.srcaddr)){
+            ip = f.srcaddr.join('.');
+            upBytes = f.dOctets;
+        }else if(config.localIP(f.dstaddr)){
+            ip = f.dstaddr.join('.');
+            downBytes = f.dOctets;
+        }else return;
 
+        if(useFlow1){
+            let ipExists = false;
+            _.forEach(flowCollector1, function(fc){
+                if(fc.ip == ip){
+                    ipExists = true;
+                    fc.upBytes += upBytes;
+                    fc.downBytes += downBytes;
+                    
+                }
+            });
+            if(!ipExists){
+                flowCollector1.push({ip: ip, upBytes: upBytes, downBytes: downBytes});
+            }
+            if(packetCount > packetThreshold){
+                writeToDB(flowCollector1);
+                packetCount = 0;
+                useFlow1 = false;
+            }
+        }else{
+            let ipExists = false;
+            _.forEach(flowCollector2, function(fc){
+                if(fc.ip == ip){
+                    ipExists = true;
+                    fc.upBytes += upBytes;
+                    fc.downBytes += downBytes;
+                    
+                }
+            });
+            if(!ipExists){
+                flowCollector2.push({ip: ip, upBytes: upBytes, downBytes: downBytes});
+            }
+            if(packetCount > packetThreshold){
+                writeToDB(flowCollector2);
+                packetCount = 0;
+                useFlow1 = true;
+            }
+        }
     });
-    /* console.log("Begin")
-    console.log(packet.v5Flows[0].srcaddr);
-    console.log(packet.v5Flows[0].dstaddr);
-    console.log("End"); */
-}).listen(port);
+}).listen(config.port);
 
-function arrToIP(arr){
-    if(arr.length != 4) return;
 
-    return `${arr[0]}.${arr[1]}.${arr[2]}.${arr[3]}`;
-    
+function writeToDB(obj){
+    // console.log("WRITE")
+
 }
-
-function validate(flow, target){
-    var src = flow.srcaddr;
-    var dst = flow.dstaddr;
-    var valid = true;
-    if(src[0] === target[0] && src[1] === target[1] && src[2] === target[2] && src[3] === target[3]){
-        return true;
-    }else if(dst[0] === target[0] && dst[1] === target[1] && dst[2] === target[2] && dst[3] === target[3]){
-        return true;
-    }else{
-        return false;
-    }
-}
-
 /* {
     srcaddr: [Array],
     dstaddr: [Array],
