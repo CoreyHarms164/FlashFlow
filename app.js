@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var Collector = require('Netflow');
+var sql = require('mssql');
 config = require('./config');
 
 var packetCount = 0;
@@ -10,6 +11,7 @@ var flowCollector1 = []; // {ip, upBytes, downBytes}
 var flowCollector2 = []; // {ip, upBytes, downBytes}
 var useFlow1 = true;
 
+dbTest();
 
 var x = new Collector(function(err){
     if(err!=null){
@@ -75,6 +77,20 @@ var x = new Collector(function(err){
 function writeToDB(obj){
     // console.log("WRITE")
 
+}
+function dbTest(){
+    sql.connect(config.db, function(err){
+        if(err) console.log(err);
+
+        var request = new sql.Request();
+
+        request.query(`SELECT name FROM customer WHERE id = '2368'`, function(err, data){
+            if(err) console.log(err);
+
+            console.log(data.recordset[0]);
+            sql.close();
+        });
+    });
 }
 /* {
     srcaddr: [Array],

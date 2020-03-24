@@ -1,8 +1,15 @@
 var _ = require('lodash');
 var port = 2055;
 var publicIPs = [[64, 19, 104, 0],[64, 19, 105, 0]]; // will be /24 addresses
+var db = {
+    user: 'sa',
+    password: '*06M02!nv05',
+    server: '192.168.0.101\\SQLEXPRESS',
+    database: 'plat'
+};
 
 exports.port = port;
+exports.db = db;
 
 exports.localIP = function(ipArr){
     var res = false;
