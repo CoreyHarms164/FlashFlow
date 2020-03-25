@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var port = 2055;
-var publicIPs = []; // will be /24 addresses
-var db = {
+var publicIPs = []; // will be /24 addresses i.e. [[x, x, x, 0], [y, y, y, 0]] The last number is not compared
+var db = {X,
     user: '',
     password: '',
     server: '',
