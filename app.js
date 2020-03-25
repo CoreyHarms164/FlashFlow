@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var Collector = require('Netflow');
 var sql = require('mssql');
-config = require('./configuration');
+config = require('./config');
 
 var packetCount = 0;
 var packetThreshold = 800; //number of packets before writing to DB
