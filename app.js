@@ -4,14 +4,13 @@ var sql = require('mssql');
 config = require('./config');
 
 var packetCount = 0;
-var packetThreshold = 800; //number of packets before writing to DB
+var packetThreshold = 100; //number of packets before writing to DB
 
 //need to use 2 collectors so no flows are missed during DB Write
 var flowCollector1 = []; // {ip, upBytes, downBytes}
 var flowCollector2 = []; // {ip, upBytes, downBytes}
 var useFlow1 = true;
 
-dbTest();
 
 var x = new Collector(function(err){
     if(err!=null){
@@ -21,7 +20,7 @@ var x = new Collector(function(err){
     console.log(`Listening on port ${config.port}`);
 }).on("packet", function(packet){
     packetCount ++;
-
+    
     _.forEach(packet.v5Flows, function(f){
         let ip, upBytes = 0, downBytes = 0;
         
@@ -47,6 +46,7 @@ var x = new Collector(function(err){
                 flowCollector1.push({ip: ip, upBytes: upBytes, downBytes: downBytes});
             }
             if(packetCount > packetThreshold){
+                console.log("Flow Full, Writing to DB");
                 writeToDB(flowCollector1);
                 packetCount = 0;
                 useFlow1 = false;
@@ -79,6 +79,7 @@ function writeToDB(obj){
 
 }
 function dbTest(){
+    console.log("dbTest");
     sql.connect(config.db, function(err){
         if(err) console.log(err);
 
