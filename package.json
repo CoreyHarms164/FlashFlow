@@ -18,7 +18,7 @@
   "homepage": "https://github.com/CoreyHarms164/FlashFlow#readme",
   "dependencies": {
     "Netflow": "https://github.com/Sghazzawi/Node-Netflowd/tarball/master",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mssql": "^6.2.0"
   }
 }
